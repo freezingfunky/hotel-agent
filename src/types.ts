@@ -1,8 +1,11 @@
 export interface PmsConfig {
-  pms: "guesty" | "hostaway" | "demo";
+  pms: "demo" | "guesty" | "hostaway" | "cloudbeds" | "mews" | "apaleo";
   apiKey: string;
-  /** Guesty-only: OAuth client secret for token exchange */
   clientSecret?: string;
+  /** Mews-only: ClientToken for connector API */
+  clientToken?: string;
+  /** Cloudbeds-only: list of property IDs to scope access */
+  propertyIds?: string[];
 }
 
 // ── Normalized entities ──────────────────────────────────────────────

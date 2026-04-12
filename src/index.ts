@@ -8,7 +8,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { PmsConfig } from "./types.js";
-import { createAdapter } from "./api-client.js";
+import { createAdapter } from "./adapters/index.js";
 import { discoverSchema } from "./tools/discover.js";
 import { portfolioHealth } from "./tools/portfolio-health.js";
 import { revenueLeaks } from "./tools/revenue-leaks.js";
