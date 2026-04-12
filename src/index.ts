@@ -31,10 +31,11 @@ function loadConfig(): PmsConfig {
     process.exit(1);
   }
 
-  if (!config.apiKey || config.apiKey.includes("your-")) {
+  if (config.pms !== "demo" && (!config.apiKey || config.apiKey.includes("your-"))) {
     console.error(
       `\nAPI key not set in config.json.\n` +
-        `Replace the placeholder with your real ${config.pms} API key.\n`,
+        `Replace the placeholder with your real ${config.pms} API key.\n` +
+        `Or set "pms" to "demo" to use mock data.\n`,
     );
     process.exit(1);
   }

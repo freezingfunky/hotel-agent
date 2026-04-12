@@ -1,4 +1,5 @@
 import type { PmsAdapter, Property, Reservation, PmsConfig } from "./types.js";
+import { MockAdapter } from "./mock-adapter.js";
 
 // ── Rate limiter ─────────────────────────────────────────────────────
 
@@ -327,13 +328,15 @@ export class HostawayAdapter implements PmsAdapter {
 
 export function createAdapter(config: PmsConfig): PmsAdapter {
   switch (config.pms) {
+    case "demo":
+      return new MockAdapter();
     case "guesty":
       return new GuestyAdapter(config);
     case "hostaway":
       return new HostawayAdapter(config);
     default:
       throw new Error(
-        `Unsupported PMS: "${config.pms}". Supported: guesty, hostaway`,
+        `Unsupported PMS: "${config.pms}". Supported: demo, guesty, hostaway`,
       );
   }
 }

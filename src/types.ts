@@ -1,5 +1,5 @@
 export interface PmsConfig {
-  pms: "guesty" | "hostaway";
+  pms: "guesty" | "hostaway" | "demo";
   apiKey: string;
   /** Guesty-only: OAuth client secret for token exchange */
   clientSecret?: string;
