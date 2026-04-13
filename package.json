@@ -1,7 +1,7 @@
 {
-  "name": "pms-copilot",
+  "name": "hotel-agent",
   "version": "0.1.0",
-  "description": "AI revenue analyst for hospitality — connects your PMS to Claude",
+  "description": "AI revenue agent for hotels — connects your PMS to Claude",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

@@ -49,7 +49,7 @@ const adapter = createAdapter(config);
 // ── Create MCP server ────────────────────────────────────────────────
 
 const server = new McpServer({
-  name: "pms-copilot",
+  name: "hotel-agent",
   version: "0.1.0",
 });
 

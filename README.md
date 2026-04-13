@@ -1,8 +1,8 @@
-# PMS Copilot
+# Hotel Agent
 
 **Stop logging into dashboards. Ask Claude instead.**
 
-PMS Copilot connects your Property Management System to Claude and gives you an AI revenue analyst that works 24/7. Every number is independently verified against your source data before it reaches you.
+Hotel Agent connects your Property Management System to Claude and gives you an AI revenue analyst that works 24/7. Every number is independently verified against your source data before it reaches you.
 
 ---
 
@@ -37,7 +37,7 @@ If the math doesn't check out, it auto-corrects and shows its work.
 | **Apaleo** | OAuth2 Bearer Token | ✅ Ready |
 | **Demo** | No key needed | ✅ Built-in |
 
-Don't see yours? [Open an issue](https://github.com/ashwingupta/pms-copilot/issues) or reach out — we'll build it.
+Don't see yours? [Open an issue](https://github.com/ashwingupta/hotel-agent/issues) or reach out — we'll build it.
 
 ---
 
@@ -46,12 +46,12 @@ Don't see yours? [Open an issue](https://github.com/ashwingupta/pms-copilot/issu
 ### Option A: One-Command Install
 
 ```bash
-bash <(curl -sL https://raw.githubusercontent.com/ashwingupta/pms-copilot/main/setup.sh)
+bash <(curl -sL https://raw.githubusercontent.com/ashwingupta/hotel-agent/main/setup.sh)
 ```
 
 This will:
 1. Check Node.js is installed (20+)
-2. Clone the repo to `~/pms-copilot`
+2. Clone the repo to `~/hotel-agent`
 3. Install dependencies and build
 4. Walk you through connecting your PMS (API key prompts)
 5. Auto-configure Claude Desktop
@@ -69,8 +69,8 @@ Then restart Claude Desktop and you're live.
 #### 1. Clone and build
 
 ```bash
-git clone https://github.com/ashwingupta/pms-copilot.git
-cd pms-copilot
+git clone https://github.com/ashwingupta/hotel-agent.git
+cd hotel-agent
 npm install
 npm run build
 ```
@@ -143,20 +143,20 @@ Open your Claude Desktop config:
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
-Add the `pms-copilot` entry under `mcpServers`:
+Add the `hotel-agent` entry under `mcpServers`:
 
 ```json
 {
   "mcpServers": {
-    "pms-copilot": {
+    "hotel-agent": {
       "command": "node",
-      "args": ["/full/path/to/pms-copilot/dist/index.js"]
+      "args": ["/full/path/to/hotel-agent/dist/index.js"]
     }
   }
 }
 ```
 
-Replace `/full/path/to/pms-copilot` with where you cloned the repo.
+Replace `/full/path/to/hotel-agent` with where you cloned the repo.
 
 #### 4. Restart Claude Desktop
 
@@ -226,7 +226,7 @@ src/
 
 I'll personally help you connect your PMS. Takes 15 minutes on a call.
 
-**DM me on [LinkedIn](https://linkedin.com/in/ashwingupta) or [open an issue](https://github.com/ashwingupta/pms-copilot/issues).**
+**DM me on [LinkedIn](https://linkedin.com/in/ashwingupta) or [open an issue](https://github.com/ashwingupta/hotel-agent/issues).**
 
 ---
 

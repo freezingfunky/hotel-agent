@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ── PMS Copilot — One-Command Setup ─────────────────────────────────
+# ── Hotel Agent — One-Command Setup ──────────────────────────────────
 # Connects your Property Management System to Claude Desktop.
 # Run with:  bash setup.sh  (or:  curl -sL <raw-url> | bash)
 
-REPO_URL="https://github.com/ashwingupta/pms-copilot.git"
-INSTALL_DIR="$HOME/pms-copilot"
+REPO_URL="https://github.com/ashwingupta/hotel-agent.git"
+INSTALL_DIR="$HOME/hotel-agent"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -21,7 +21,7 @@ header(){ echo -e "\n${BOLD}$1${RESET}\n"; }
 
 # ── Step 1: Prerequisites ───────────────────────────────────────────
 
-header "PMS Copilot Setup"
+header "Hotel Agent Setup"
 
 if ! command -v node &>/dev/null; then
   fail "Node.js is required but not installed.\n  Install it from https://nodejs.org (version 20+) and re-run this script."
@@ -40,7 +40,7 @@ ok "npm $(npm --version)"
 
 # ── Step 2: Clone / Update ──────────────────────────────────────────
 
-header "Installing PMS Copilot"
+header "Installing Hotel Agent"
 
 if [ -d "$INSTALL_DIR/.git" ]; then
   info "Existing install found at $INSTALL_DIR — pulling latest…"
@@ -169,7 +169,7 @@ else
   CLAUDE_CONFIG="$HOME/.config/claude/claude_desktop_config.json"
 fi
 
-MCP_ENTRY='"pms-copilot": {
+MCP_ENTRY='"hotel-agent": {
       "command": "node",
       "args": ["'"$INSTALL_DIR"'/dist/index.js"]
     }'
@@ -183,18 +183,18 @@ with open(config_path, "r") as f:
     config = json.load(f)
 if "mcpServers" not in config:
     config["mcpServers"] = {}
-config["mcpServers"]["pms-copilot"] = {
+config["mcpServers"]["hotel-agent"] = {
     "command": "node",
-    "args": [sys.argv[1].rsplit("/claude_desktop_config.json", 1)[0].replace("/Library/Application Support/Claude", "") + "/pms-copilot/dist/index.js"]
+    "args": [sys.argv[1].rsplit("/claude_desktop_config.json", 1)[0].replace("/Library/Application Support/Claude", "") + "/hotel-agent/dist/index.js"]
 }
 # Fix: use INSTALL_DIR from env
 import os
-install_dir = os.path.expanduser("~/pms-copilot")
-config["mcpServers"]["pms-copilot"]["args"] = [install_dir + "/dist/index.js"]
+install_dir = os.path.expanduser("~/hotel-agent")
+config["mcpServers"]["hotel-agent"]["args"] = [install_dir + "/dist/index.js"]
 with open(config_path, "w") as f:
     json.dump(config, f, indent=2)
 PYEOF
-    ok "Added pms-copilot to Claude Desktop config"
+    ok "Added hotel-agent to Claude Desktop config"
   else
     echo ""
     info "Could not auto-configure (python3 not found)."
@@ -209,7 +209,7 @@ else
   cat > "$CLAUDE_CONFIG" <<CLEOF
 {
   "mcpServers": {
-    "pms-copilot": {
+    "hotel-agent": {
       "command": "node",
       "args": ["$INSTALL_DIR/dist/index.js"]
     }
