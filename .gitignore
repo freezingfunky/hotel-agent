@@ -3,3 +3,6 @@ dist/
 *.js.map
 .env
 config.json
+coverage/
+*.tgz
+.DS_Store

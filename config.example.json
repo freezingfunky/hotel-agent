@@ -1,4 +1,5 @@
 {
   "pms": "guesty",
-  "apiKey": "your-api-key-here"
+  "apiKey": "your-api-key-here",
+  "clientSecret": "your-client-secret-if-needed"
 }
