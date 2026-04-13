@@ -37,7 +37,7 @@ If the math doesn't check out, it auto-corrects and shows its work.
 | **Apaleo** | OAuth2 Bearer Token | ✅ Ready |
 | **Demo** | No key needed | ✅ Built-in |
 
-Don't see yours? [Open an issue](https://github.com/ashwingupta/hotel-agent/issues) or reach out — we'll build it.
+Don't see yours? [Open an issue](https://github.com/freezingfunky/hotel-agent/issues) or reach out — we'll build it.
 
 ---
 
@@ -46,7 +46,7 @@ Don't see yours? [Open an issue](https://github.com/ashwingupta/hotel-agent/issu
 ### Option A: One-Command Install
 
 ```bash
-bash <(curl -sL https://raw.githubusercontent.com/ashwingupta/hotel-agent/main/setup.sh)
+bash <(curl -sL https://raw.githubusercontent.com/freezingfunky/hotel-agent/main/setup.sh)
 ```
 
 This will:
@@ -69,7 +69,7 @@ Then restart Claude Desktop and you're live.
 #### 1. Clone and build
 
 ```bash
-git clone https://github.com/ashwingupta/hotel-agent.git
+git clone https://github.com/freezingfunky/hotel-agent.git
 cd hotel-agent
 npm install
 npm run build
@@ -226,7 +226,7 @@ src/
 
 I'll personally help you connect your PMS. Takes 15 minutes on a call.
 
-**DM me on [LinkedIn](https://linkedin.com/in/ashwingupta) or [open an issue](https://github.com/ashwingupta/hotel-agent/issues).**
+**DM me on [LinkedIn](https://linkedin.com/in/freezingfunky) or [open an issue](https://github.com/freezingfunky/hotel-agent/issues).**
 
 ---
 

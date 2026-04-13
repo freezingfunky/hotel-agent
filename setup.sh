@@ -5,7 +5,7 @@ set -euo pipefail
 # Connects your Property Management System to Claude Desktop.
 # Run with:  bash setup.sh  (or:  curl -sL <raw-url> | bash)
 
-REPO_URL="https://github.com/ashwingupta/hotel-agent.git"
+REPO_URL="https://github.com/freezingfunky/hotel-agent.git"
 INSTALL_DIR="$HOME/hotel-agent"
 
 RED='\033[0;31m'
