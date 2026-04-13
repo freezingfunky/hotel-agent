@@ -1,4 +1,6 @@
 {
-  "pms": "demo",
-  "apiKey": "not-needed"
+  "pms": { "provider": "demo", "apiKey": "not-needed" },
+  "rms": { "provider": "demo", "apiKey": "not-needed" },
+  "str": { "provider": "demo", "apiKey": "not-needed" },
+  "ota": { "provider": "demo", "apiKey": "not-needed" }
 }

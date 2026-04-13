@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ── Hotel Agent — One-Command Setup ──────────────────────────────────
-# Connects your Property Management System to Claude Desktop.
+# Connects your PMS, RMS, STR benchmarks, and OTA channels to Claude.
 # Run with:  bash setup.sh  (or:  curl -sL <raw-url> | bash)
 
 REPO_URL="https://github.com/freezingfunky/hotel-agent.git"
@@ -60,11 +60,17 @@ info "Building…"
 npm run build
 ok "Build complete"
 
-# ── Step 3: PMS Configuration ───────────────────────────────────────
+# ── Step 3: Data Source Configuration ────────────────────────────────
 
-header "Connect Your PMS"
+header "Connect Your Data Sources"
 
-echo "Which PMS do you use?"
+echo "Hotel Agent supports 4 data sources. PMS is required; the rest are optional."
+echo "Each adds new analysis tools to Claude."
+echo ""
+
+# ── PMS ──
+
+echo -e "${BOLD}1. PMS (Property Management System) — REQUIRED${RESET}"
 echo ""
 echo "  1) Guesty"
 echo "  2) Hostaway"
@@ -76,84 +82,164 @@ echo ""
 read -rp "Enter 1-6: " PMS_CHOICE
 
 case "$PMS_CHOICE" in
-  1) PMS_NAME="guesty"    ;;
-  2) PMS_NAME="hostaway"  ;;
-  3) PMS_NAME="cloudbeds" ;;
-  4) PMS_NAME="mews"      ;;
-  5) PMS_NAME="apaleo"    ;;
-  6) PMS_NAME="demo"      ;;
+  1) PMS_PROVIDER="guesty"    ;;
+  2) PMS_PROVIDER="hostaway"  ;;
+  3) PMS_PROVIDER="cloudbeds" ;;
+  4) PMS_PROVIDER="mews"      ;;
+  5) PMS_PROVIDER="apaleo"    ;;
+  6) PMS_PROVIDER="demo"      ;;
   *) fail "Invalid choice. Re-run and pick 1-6." ;;
 esac
 
-if [ "$PMS_NAME" = "demo" ]; then
+PMS_KEY=""
+PMS_SECRET=""
+PMS_TOKEN=""
+
+if [ "$PMS_PROVIDER" != "demo" ]; then
+  read -rp "  API Key: " PMS_KEY
+  [ -z "$PMS_KEY" ] && fail "API key cannot be empty."
+
+  if [ "$PMS_PROVIDER" = "guesty" ] || [ "$PMS_PROVIDER" = "hostaway" ] || [ "$PMS_PROVIDER" = "apaleo" ]; then
+    read -rp "  Client Secret: " PMS_SECRET
+  fi
+  if [ "$PMS_PROVIDER" = "mews" ]; then
+    read -rp "  Client Token: " PMS_TOKEN
+  fi
+fi
+
+# ── RMS ──
+
+echo ""
+echo -e "${BOLD}2. RMS (Revenue Management System) — optional${RESET}"
+echo ""
+echo "  1) RoomPriceGenie"
+echo "  2) IDeaS"
+echo "  3) Demo (mock data)"
+echo "  4) Skip"
+echo ""
+read -rp "Enter 1-4: " RMS_CHOICE
+
+RMS_PROVIDER=""
+RMS_KEY=""
+
+case "$RMS_CHOICE" in
+  1) RMS_PROVIDER="roompricegenie" ;;
+  2) RMS_PROVIDER="ideas"          ;;
+  3) RMS_PROVIDER="demo"           ;;
+  4) RMS_PROVIDER=""               ;;
+  *) RMS_PROVIDER=""               ;;
+esac
+
+if [ -n "$RMS_PROVIDER" ] && [ "$RMS_PROVIDER" != "demo" ]; then
+  read -rp "  RMS API Key: " RMS_KEY
+fi
+
+# ── STR ──
+
+echo ""
+echo -e "${BOLD}3. STR / Benchmarking — optional${RESET}"
+echo ""
+echo "  1) AirDNA"
+echo "  2) Demo (mock data)"
+echo "  3) Skip"
+echo ""
+read -rp "Enter 1-3: " STR_CHOICE
+
+STR_PROVIDER=""
+STR_KEY=""
+
+case "$STR_CHOICE" in
+  1) STR_PROVIDER="airdna" ;;
+  2) STR_PROVIDER="demo"   ;;
+  3) STR_PROVIDER=""        ;;
+  *) STR_PROVIDER=""        ;;
+esac
+
+if [ -n "$STR_PROVIDER" ] && [ "$STR_PROVIDER" != "demo" ]; then
+  read -rp "  STR API Key: " STR_KEY
+fi
+
+# ── OTA ──
+
+echo ""
+echo -e "${BOLD}4. OTA (Online Travel Agency) — optional${RESET}"
+echo ""
+echo "  1) Booking.com"
+echo "  2) Expedia"
+echo "  3) Demo (mock data)"
+echo "  4) Skip"
+echo ""
+read -rp "Enter 1-4: " OTA_CHOICE
+
+OTA_PROVIDER=""
+OTA_KEY=""
+OTA_SECRET=""
+
+case "$OTA_CHOICE" in
+  1) OTA_PROVIDER="booking"  ;;
+  2) OTA_PROVIDER="expedia"  ;;
+  3) OTA_PROVIDER="demo"     ;;
+  4) OTA_PROVIDER=""          ;;
+  *) OTA_PROVIDER=""          ;;
+esac
+
+if [ -n "$OTA_PROVIDER" ] && [ "$OTA_PROVIDER" != "demo" ]; then
+  read -rp "  OTA API Key: " OTA_KEY
+  if [ "$OTA_PROVIDER" = "expedia" ]; then
+    read -rp "  Expedia Shared Secret: " OTA_SECRET
+  fi
+fi
+
+# ── Build config.json ──
+
+if [ "$PMS_PROVIDER" = "demo" ] && [ "$RMS_PROVIDER" = "" ] && [ "$STR_PROVIDER" = "" ] && [ "$OTA_PROVIDER" = "" ]; then
+  # Full demo mode
   cat > "$INSTALL_DIR/config.json" <<DEMOEOF
 {
-  "pms": "demo",
-  "apiKey": "not-needed"
+  "pms": { "provider": "demo", "apiKey": "not-needed" },
+  "rms": { "provider": "demo", "apiKey": "not-needed" },
+  "str": { "provider": "demo", "apiKey": "not-needed" },
+  "ota": { "provider": "demo", "apiKey": "not-needed" }
 }
 DEMOEOF
-  ok "Demo mode — no API key required"
+  ok "Full demo mode configured"
 else
-  echo ""
-  info "You'll need your API credentials from $PMS_NAME."
+  # Build JSON with python3 for safe escaping
+  if command -v python3 &>/dev/null; then
+    python3 - <<PYEOF
+import json, os
 
-  case "$PMS_NAME" in
-    guesty)
-      echo "  → Guesty Dashboard > Settings > API > Create OAuth2 client"
-      echo "    You need the Client ID (apiKey) and Client Secret."
-      ;;
-    hostaway)
-      echo "  → Hostaway Dashboard > Settings > API Keys"
-      echo "    You need the Account ID (apiKey) and API Secret."
-      ;;
-    cloudbeds)
-      echo "  → Cloudbeds > Settings > API Credentials"
-      echo "    You need the API Key."
-      ;;
-    mews)
-      echo "  → Mews > Settings > Integrations > Connector API"
-      echo "    You need the Client Token and Access Token."
-      ;;
-    apaleo)
-      echo "  → apaleo > Integration > OAuth2 > Client Credentials"
-      echo "    You need the Client ID (apiKey) and Client Secret."
-      ;;
-  esac
+config = {}
 
-  echo ""
-  read -rp "API Key: " API_KEY
-  [ -z "$API_KEY" ] && fail "API key cannot be empty."
+pms = {"provider": "$PMS_PROVIDER", "apiKey": "${PMS_KEY:-not-needed}"}
+if "$PMS_SECRET": pms["clientSecret"] = "$PMS_SECRET"
+if "$PMS_TOKEN": pms["clientToken"] = "$PMS_TOKEN"
+config["pms"] = pms
 
-  CLIENT_SECRET=""
-  CLIENT_TOKEN=""
+rms_prov = "$RMS_PROVIDER"
+if rms_prov:
+    config["rms"] = {"provider": rms_prov, "apiKey": "${RMS_KEY:-not-needed}"}
 
-  if [ "$PMS_NAME" = "guesty" ] || [ "$PMS_NAME" = "hostaway" ] || [ "$PMS_NAME" = "apaleo" ]; then
-    read -rp "Client Secret: " CLIENT_SECRET
-  fi
+str_prov = "$STR_PROVIDER"
+if str_prov:
+    config["str"] = {"provider": str_prov, "apiKey": "${STR_KEY:-not-needed}"}
 
-  if [ "$PMS_NAME" = "mews" ]; then
-    read -rp "Client Token: " CLIENT_TOKEN
-  fi
+ota_prov = "$OTA_PROVIDER"
+if ota_prov:
+    ota_conf = {"provider": ota_prov, "apiKey": "${OTA_KEY:-not-needed}"}
+    if "$OTA_SECRET": ota_conf["clientSecret"] = "$OTA_SECRET"
+    config["ota"] = ota_conf
 
-  # Build config.json
-  CONFIG="{
-  \"pms\": \"$PMS_NAME\",
-  \"apiKey\": \"$API_KEY\""
-
-  if [ -n "$CLIENT_SECRET" ]; then
-    CONFIG="$CONFIG,
-  \"clientSecret\": \"$CLIENT_SECRET\""
-  fi
-
-  if [ -n "$CLIENT_TOKEN" ]; then
-    CONFIG="$CONFIG,
-  \"clientToken\": \"$CLIENT_TOKEN\""
-  fi
-
-  CONFIG="$CONFIG
+with open("$INSTALL_DIR/config.json", "w") as f:
+    json.dump(config, f, indent=2)
+PYEOF
+  else
+    # Fallback: legacy flat format for PMS-only
+    CONFIG="{
+  \"pms\": { \"provider\": \"$PMS_PROVIDER\", \"apiKey\": \"${PMS_KEY:-not-needed}\" }
 }"
-
-  echo "$CONFIG" > "$INSTALL_DIR/config.json"
+    echo "$CONFIG" > "$INSTALL_DIR/config.json"
+  fi
   ok "Config saved to $INSTALL_DIR/config.json"
 fi
 
@@ -169,28 +255,20 @@ else
   CLAUDE_CONFIG="$HOME/.config/claude/claude_desktop_config.json"
 fi
 
-MCP_ENTRY='"hotel-agent": {
-      "command": "node",
-      "args": ["'"$INSTALL_DIR"'/dist/index.js"]
-    }'
-
 if [ -f "$CLAUDE_CONFIG" ]; then
   if command -v python3 &>/dev/null; then
-    python3 - "$CLAUDE_CONFIG" "$MCP_ENTRY" <<'PYEOF'
-import json, sys
+    python3 - "$CLAUDE_CONFIG" <<PYEOF
+import json, sys, os
 config_path = sys.argv[1]
 with open(config_path, "r") as f:
     config = json.load(f)
 if "mcpServers" not in config:
     config["mcpServers"] = {}
+install_dir = os.path.expanduser("~/hotel-agent")
 config["mcpServers"]["hotel-agent"] = {
     "command": "node",
-    "args": [sys.argv[1].rsplit("/claude_desktop_config.json", 1)[0].replace("/Library/Application Support/Claude", "") + "/hotel-agent/dist/index.js"]
+    "args": [install_dir + "/dist/index.js"]
 }
-# Fix: use INSTALL_DIR from env
-import os
-install_dir = os.path.expanduser("~/hotel-agent")
-config["mcpServers"]["hotel-agent"]["args"] = [install_dir + "/dist/index.js"]
 with open(config_path, "w") as f:
     json.dump(config, f, indent=2)
 PYEOF
@@ -198,11 +276,9 @@ PYEOF
   else
     echo ""
     info "Could not auto-configure (python3 not found)."
-    info "Manually add this to $CLAUDE_CONFIG:"
+    info "Manually add this to $CLAUDE_CONFIG under mcpServers:"
     echo ""
-    echo '  "mcpServers": {'
-    echo "    $MCP_ENTRY"
-    echo '  }'
+    echo '    "hotel-agent": { "command": "node", "args": ["'"$INSTALL_DIR"'/dist/index.js"] }'
   fi
 else
   mkdir -p "$(dirname "$CLAUDE_CONFIG")"
@@ -221,12 +297,22 @@ fi
 
 # ── Done ─────────────────────────────────────────────────────────────
 
-header "🎉 Setup Complete!"
+header "Setup Complete!"
 
+SOURCES="PMS ($PMS_PROVIDER)"
+[ -n "$RMS_PROVIDER" ] && SOURCES="$SOURCES, RMS ($RMS_PROVIDER)"
+[ -n "$STR_PROVIDER" ] && SOURCES="$SOURCES, STR ($STR_PROVIDER)"
+[ -n "$OTA_PROVIDER" ] && SOURCES="$SOURCES, OTA ($OTA_PROVIDER)"
+
+echo -e "Connected: ${BOLD}$SOURCES${RESET}"
+echo ""
 echo -e "Next steps:"
 echo -e "  1. ${BOLD}Restart Claude Desktop${RESET} (quit fully, then reopen)"
 echo -e "  2. Look for the hammer/tools icon in the chat input"
 echo -e "  3. Try: ${CYAN}\"What does my portfolio look like?\"${RESET}"
+[ -n "$RMS_PROVIDER" ] && echo -e "     ${CYAN}\"Are my rates competitive?\"${RESET}"
+[ -n "$STR_PROVIDER" ] && echo -e "     ${CYAN}\"How do I compare to my comp set?\"${RESET}"
+[ -n "$OTA_PROVIDER" ] && echo -e "     ${CYAN}\"Which channels are most profitable?\"${RESET}"
 echo ""
 echo -e "Installed at: ${BOLD}$INSTALL_DIR${RESET}"
 echo -e "Config:       ${BOLD}$INSTALL_DIR/config.json${RESET}"

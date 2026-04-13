@@ -1,5 +1,19 @@
 {
-  "pms": "guesty",
-  "apiKey": "your-api-key-here",
-  "clientSecret": "your-client-secret-if-needed"
+  "pms": {
+    "provider": "guesty",
+    "apiKey": "your-api-key-here",
+    "clientSecret": "your-client-secret-if-needed"
+  },
+  "rms": {
+    "provider": "roompricegenie",
+    "apiKey": "your-rms-api-key"
+  },
+  "str": {
+    "provider": "airdna",
+    "apiKey": "your-airdna-api-key"
+  },
+  "ota": {
+    "provider": "booking",
+    "apiKey": "your-ota-api-key"
+  }
 }
